@@ -70,6 +70,7 @@ class RingBox:
             self.canvas.create_text(250, 250, text="Ring Complete", font=("Verdana", 40, "bold"), fill="white", tags="ring_complete_text")
         else:
             record = self.data[self.current_record_index]
+            self.button.config(state=tk.ACTIVE)
             #self.text_widget.delete("1.0", tk.END)
             #self.text_widget.insert(tk.END, "Division Name: " + record["division name"] + "\n")
             #self.text_widget.insert(tk.END, "Time To Complete: " + str(record["time to complete"]) + "\n\n")
@@ -77,7 +78,7 @@ class RingBox:
                 next_record = self.data[self.current_record_index + 1]
                 self.next_text.delete("1.0", tk.END)
                 self.next_text.insert(tk.END, "Division Name: " + next_record["division name"] + "\n")
-                self.next_text.insert(tk.END, "Time To Complete: " + str(next_record["time to complete"]) + "\n\n")
+                self.next_text.insert(tk.END, "Time: " + str(next_record["time to complete"]) + "\n\n")
             else:
                 self.next_text.delete("1.0", tk.END)
                 self.next_text.insert(tk.END, "Ring Complete")
@@ -87,15 +88,15 @@ class RingBox:
         
             # Display the text on the canvas
             division_text = "Division:"
-            time_text = "Time To Complete:"
+            time_text = "Time:"
             current_division_text = record["division name"]
-            time_to_complete_text = str(record["time to complete"]) + " mins"
+            time_to_complete_text = str(record["time to complete"]) + " mins || " + "Start Time: " + str(time.strftime('%H:%M'))
         
             self.canvas.create_image(0, 0, anchor=tk.NW, image=self.bg_image)
             self.canvas.create_text(250, 50, anchor=tk.CENTER, text=division_text, font=("Verdana", 25), fill="white")
             self.canvas.create_text(250, 250, anchor=tk.CENTER, text=current_division_text, font=("Verdana", 30, "bold"), fill="white", tags="current_division_text", width=500)
             self.canvas.create_text(250, 435, anchor=tk.CENTER, text=time_text, font=("Verdana", 25), fill="white")
-            self.canvas.create_text(250, 475, anchor=tk.CENTER, text=time_to_complete_text, font=("Verdana", 40, "bold"), fill="white", tags="time_to_complete_text", width = 500)
+            self.canvas.create_text(250, 475, anchor=tk.CENTER, text=time_to_complete_text, font=("Verdana", 20, "bold"), fill="white", tags="time_to_complete_text", width = 500)
     
     def next_record(self):
         self.current_record_index += 1
@@ -104,7 +105,10 @@ class RingBox:
         self.display_record()
 
     def previous_record(self):
-        self.current_record_index -= 1
+        if self.current_record_index == 0:
+            pass
+        else:
+            self.current_record_index -= 1
         self.is_ring_complete = False
         self.display_record()
 
@@ -122,6 +126,7 @@ def select_file():
         # Destroy the existing widgets and go back to the original window
         # frame.destroy()
         create_columns(unique_rings, df)
+        button.config(state=tk.DISABLED)
 
 def restart_application():
     # Close the current window
@@ -149,7 +154,7 @@ def create_columns(unique_rings, df):
         RingBox(frame, ring, filtered_df.to_dict("records"))
 
 def update_clock():
-    current_time = time.strftime('%H:%M:%S')
+    current_time = time.strftime('%H:%M')
     clock_label.config(text=current_time, font="Verdana 125 bold")
     root.after(1000, update_clock)
 root = tk.Tk()
@@ -157,7 +162,7 @@ root.title("Tournament Schedule Display")
 
 # Create a label for the clock
 clock_label = tk.Label(root, text="", font=("Verdana bold", 25))
-clock_label.pack(side=tk.BOTTOM, pady=(10,0))
+clock_label.pack(side=tk.BOTTOM, pady=(1,0))
 
 # Update the clock
 update_clock()
